@@ -1,20 +1,21 @@
 organization := "com.typesafe.training"
 
-name := "scalatrain"
+name := "scala-train"
 
-version := "0.1.0"
+version := "3.0.0"
 
-scalaVersion := "2.10.2"
+scalaVersion := Version.scala
 
-libraryDependencies ++= Dependencies.scalatrain
+libraryDependencies ++= Dependencies.scalaTrain
 
 scalacOptions ++= List(
   "-unchecked",
   "-deprecation",
-  "-Xlint",
   "-language:_",
   "-target:jvm-1.6",
   "-encoding", "UTF-8"
 )
 
-// initialCommands in console := "import com.typesafe.training.scalatrain._"
+//initialCommands in console := "import com.typesafe.training.scalatrain._"
+
+//initialCommands in (Test, console) := (initialCommands in console).value + ",TestData._"

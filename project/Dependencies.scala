@@ -1,25 +1,22 @@
 import sbt._
 
 object Version {
-  val scala     = "2.10.2"
-  val akka      = "2.2.0"
-  val logback   = "1.0.13"
-  val scalaTest = "2.0.RC1-SNAP4"
+  val scala        = "2.11.1"
+  val scalaParsers = "1.0.1"
+  val scalaTest    = "2.2.0"
 }
 
 object Library {
-  val akkaActor      = "com.typesafe.akka" %% "akka-actor"      % Version.akka
-  val akkaSlf4j      = "com.typesafe.akka" %% "akka-slf4j"      % Version.akka
-  val akkaTestkit    = "com.typesafe.akka" %% "akka-testkit"    % Version.akka
-  val logbackClassic = "ch.qos.logback"    %  "logback-classic" % Version.logback
-  val scalaTest      = "org.scalatest"     %% "scalatest"       % Version.scalaTest
+  val scalaParsers = "org.scala-lang.modules" %% "scala-parser-combinators" % Version.scalaParsers
+  val scalaTest    = "org.scalatest"          %% "scalatest"                % Version.scalaTest
 }
 
 object Dependencies {
 
   import Library._
 
-  val scalatrain = List(
+  val scalaTrain = List(
+    scalaParsers,
     scalaTest % "test"
   )
 }
