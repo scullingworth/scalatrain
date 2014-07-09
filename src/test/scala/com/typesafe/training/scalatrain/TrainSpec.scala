@@ -39,4 +39,17 @@ class TrainSpec extends WordSpec with Matchers {
       train1.backToBackStations should equal(Seq((vancouver, portland)))
     }
   }
+
+  "Train.departureTimes" should {
+    "get a sequence of departure times for all stations" in {
+      train1.departureTimes should equal(Seq((vancouver, Time(8, 0)), (portland, Time(11, 0))))
+    }
+  }
+  
+  "Hop" should {
+    "arrival and departure time should be correct for stations" in  {
+      Hop(vancouver, portland, train1).departureTime should equal(Time(8, 0))
+      Hop(vancouver, portland, train1).arrivalTime should equal(Time(11, 0))
+    }
+  }
 }

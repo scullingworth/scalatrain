@@ -24,8 +24,20 @@ case class Train(
 
     buildStationTuple(schedule.map(x => x._2))
   }
+
+  val departureTimes: Seq[(Station, Time)] = schedule map (stop => (stop._2, stop._1))
+
 }
 
 case class Station(
     name: String) {
+}
+
+case class Hop(from: Station, to: Station, train: Train) {
+  
+  private def getTimeForStation(station: Station): Time = {
+    (train.departureTimes find(stationAndTime => stationAndTime._1 == station)).get._2
+  }
+  val departureTime: Time = getTimeForStation(from)
+  val arrivalTime: Time = getTimeForStation(to)
 }
