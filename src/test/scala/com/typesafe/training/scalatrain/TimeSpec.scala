@@ -78,4 +78,5 @@ class TimeSpec extends WordSpec with Matchers {
       Time.fromJson(JSONObject(Map("hours" -> "aa", "minutes" -> 0))) should equal(None)
     }
   }
+
 }
