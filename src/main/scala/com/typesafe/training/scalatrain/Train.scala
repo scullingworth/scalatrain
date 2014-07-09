@@ -34,9 +34,12 @@ case class Station(
 }
 
 case class Hop(from: Station, to: Station, train: Train) {
-  
+  require(train.schedule exists (s => s._2 == from))
+  require(train.schedule exists (s => s._2 == to))
+  require(train.schedule.dropWhile(s => s._2 != from).tail.exists(t => t._2 == to))
+
   private def getTimeForStation(station: Station): Time = {
-    (train.departureTimes find(stationAndTime => stationAndTime._1 == station)).get._2
+    (train.departureTimes find (stationAndTime => stationAndTime._1 == station)).get._2
   }
   val departureTime: Time = getTimeForStation(from)
   val arrivalTime: Time = getTimeForStation(to)

@@ -37,7 +37,7 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
     }
   }
 
-  "JourneyPlannerisShortTrip" should {
+  "JourneyPlanner.isShortTrip" should {
     "return true if with adjacent matching from/to stations" in {
       val jp = new JourneyPlanner(Set(train1))
       jp.isShortTrip(vancouver, portland) shouldBe true
@@ -77,5 +77,15 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
       val jp = new JourneyPlanner(Set(train3))
       jp.isShortTrip(seattle, vancouver) shouldBe false
     }
+  }
+
+  "JourneyPlanner.departingStationToHopsMap" should {
+    "return a map of 3 vancouver " in {
+      val jp = new JourneyPlanner(Set(train1, train3, train4))
+      jp.departingStationToHopsMap.get(vancouver).get should contain(Hop(vancouver, portland, train1))
+      jp.departingStationToHopsMap.get(vancouver).get should contain(Hop(vancouver, seattle, train3))
+      jp.departingStationToHopsMap.get(vancouver).get should contain(Hop(vancouver, seattle, train4))
+    }
+
   }
 }

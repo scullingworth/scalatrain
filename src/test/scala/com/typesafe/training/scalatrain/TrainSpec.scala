@@ -45,11 +45,14 @@ class TrainSpec extends WordSpec with Matchers {
       train1.departureTimes should equal(Seq((vancouver, Time(8, 0)), (portland, Time(11, 0))))
     }
   }
-  
+
   "Hop" should {
-    "arrival and departure time should be correct for stations" in  {
+    "arrival and departure time should be correct for stations" in {
       Hop(vancouver, portland, train1).departureTime should equal(Time(8, 0))
       Hop(vancouver, portland, train1).arrivalTime should equal(Time(11, 0))
+    }
+    "throw and IllegalArgumentException if 'to' is before the 'from'" in {
+      an[IllegalArgumentException] should be thrownBy Hop(portland, vancouver, train1)
     }
   }
 }

@@ -6,6 +6,14 @@ package com.typesafe.training.scalatrain
 class JourneyPlanner(trains: Set[Train]) {
   val stations: Set[Station] = trains.flatMap(x => x.stations)
 
+  val departingStationToHopsMap: Map[Station, Set[Hop]] = {
+    val result = for {
+      train <- trains
+      (departureStation, arrivalStation) <- train.backToBackStations
+    } yield Hop(departureStation, arrivalStation, train)
+    result.groupBy(_.from)
+  }
+
   def trainsAt(station: Station): Set[Train] = trains filter (train => train.stations contains station)
 
   def stopsAt(station: Station): Set[(Time, Train)] = {
