@@ -18,6 +18,7 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
   val train2 = Train(RegionalExpress(2), Seq(Time(6, 0) -> portland, Time(10, 0) -> seattle))
   val train3 = Train(RegionalExpress(3), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> seattle, Time(10, 0) -> portland))
   val train4 = Train(RegionalExpress(4), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> seattle, Time(10, 0) -> portland, Time(12, 0) -> eugene))
+  val train5 = Train(RegionalExpress(5), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> eugene))
 
   "Creating JourneyPlanner" should {
     "verify that stations is correctly initialized" in {
@@ -86,6 +87,30 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
       jp.departingStationToHopsMap.get(vancouver).get should contain(Hop(vancouver, seattle, train3))
       jp.departingStationToHopsMap.get(vancouver).get should contain(Hop(vancouver, seattle, train4))
     }
-
   }
+  
+  
+  "JourneyPlanner.pathsBetweenTwoStations" should {
+    "return a single hop for a simple schedule" in {
+      val jp = new JourneyPlanner(Set(train1))
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(1)
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.size should equal(1)
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.from should equal (vancouver)
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.to should equal (portland)
+    }
+  }
+  
+  "JourneyPlanner.pathsBetweenTwoStations" should {
+    "return a two hops for a two simple schedules" in {
+      val jp = new JourneyPlanner(Set(train1, train3, train5))
+      
+      println("result: " + jp.pathsBetweenTwoStations(vancouver, portland, Time(8)))
+      
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(2)
+//      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.size should equal(1)
+//      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.from should equal (vancouver)
+//      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.to should equal (portland)
+    }
+  }
+  
 }

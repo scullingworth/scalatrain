@@ -30,4 +30,15 @@ class JourneyPlanner(trains: Set[Train]) {
       case _                        => false
     })
   }
+  
+  def pathsBetweenTwoStations(from: Station, to: Station, departureTime: Time): Set[Seq[Hop]] = {
+    
+    if (from == to) Set(Seq())
+    else {
+	    for {
+	      currentHop <- departingStationToHopsMap.getOrElse(from, Set()) 
+	      path <- pathsBetweenTwoStations(currentHop.to, to, departureTime)
+	    } yield currentHop +: path
+    }
+  }
 }
