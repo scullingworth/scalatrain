@@ -16,9 +16,14 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
 
   val train1 = Train(InterCityExpress(1), Seq(Time(8, 0) -> vancouver, Time(11, 0) -> portland))
   val train2 = Train(RegionalExpress(2), Seq(Time(6, 0) -> portland, Time(10, 0) -> seattle))
-  val train3 = Train(RegionalExpress(3), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> seattle, Time(10, 0) -> portland))
+  val train3 = Train(RegionalExpress(3), Seq(Time(6, 0) -> vancouver, Time(9, 0) -> seattle, Time(10, 0) -> portland))
   val train4 = Train(RegionalExpress(4), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> seattle, Time(10, 0) -> portland, Time(12, 0) -> eugene))
   val train5 = Train(RegionalExpress(5), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> eugene))
+  
+  val train6 = Train(InterCityExpress(1), Seq(Time(8, 0) -> vancouver, Time(9, 0) -> seattle))
+  val train7 = Train(InterCityExpress(1), Seq(Time(8, 0) -> seattle, Time(9, 0) -> portland))
+  val train8 = Train(InterCityExpress(1), Seq(Time(9, 0) -> seattle, Time(10, 0) -> portland))
+  
 
   "Creating JourneyPlanner" should {
     "verify that stations is correctly initialized" in {
@@ -104,12 +109,29 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
     "return a two hops for a two simple schedules" in {
       val jp = new JourneyPlanner(Set(train1, train3, train5))
       
-      println("result: " + jp.pathsBetweenTwoStations(vancouver, portland, Time(8)))
+      //println("result: " + jp.pathsBetweenTwoStations(vancouver, portland, Time(8)))
       
-      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(2)
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(6)).size should equal(2)
 //      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.size should equal(1)
 //      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.from should equal (vancouver)
 //      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.to should equal (portland)
+    }
+  }
+  
+  "JourneyPlanner.pathsBetweenTwoStations" should {
+    "return nothing if departure time is too late" in {
+      val jp = new JourneyPlanner(Set(train1))
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(9)).size should equal(0)
+    }
+    
+    "return nothing if connection is impossible" in {
+      val jp = new JourneyPlanner(Set(train6, train7))
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(0)
+    }
+    
+     "return one path if connection is possible" in {
+      val jp = new JourneyPlanner(Set(train6, train7, train8))
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(1)
     }
   }
   

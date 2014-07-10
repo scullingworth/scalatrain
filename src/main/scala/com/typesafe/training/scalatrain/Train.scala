@@ -43,6 +43,6 @@ case class Hop(from: Station, to: Station, train: Train) {
   }
   val departureTime: Time = getTimeForStation(from)
   val arrivalTime: Time = getTimeForStation(to)
-  
+
   override def toString: String = s"from: $from; to: $to; train#: ${train.info.number}"
 }

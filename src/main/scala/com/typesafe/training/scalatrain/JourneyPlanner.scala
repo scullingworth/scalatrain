@@ -25,20 +25,33 @@ class JourneyPlanner(trains: Set[Train]) {
 
   def isShortTrip(from: Station, to: Station): Boolean = {
     trains.exists(train => train.stations.dropWhile(s => s != from) match {
-      case `from` +: `to` +: _      => true
+      case `from` +: `to` +: _ => true
       case `from` +: _ +: `to` +: _ => true
-      case _                        => false
+      case _ => false
     })
   }
-  
+
   def pathsBetweenTwoStations(from: Station, to: Station, departureTime: Time): Set[Seq[Hop]] = {
-    
-    if (from == to) Set(Seq())
+    val paths: Set[Seq[Hop]] = {
+      if (from == to) Set(Seq())
+      else {
+        for {
+          currentHop <- departingStationToHopsMap.getOrElse(from, Set())
+          path <- pathsBetweenTwoStations(currentHop.to, to, departureTime) if currentHop.departureTime >= departureTime
+        } yield currentHop +: path
+      }
+    }
+    paths filter (path => !containsImpossibleConnection(path))
+  }
+
+  def containsImpossibleConnection(hops: Seq[Hop]): Boolean = {
+    if (hops.isEmpty) false
     else {
-	    for {
-	      currentHop <- departingStationToHopsMap.getOrElse(from, Set()) 
-	      path <- pathsBetweenTwoStations(currentHop.to, to, departureTime)
-	    } yield currentHop +: path
+      val hopPairs = hops zip hops.tail
+      hopPairs exists {
+        case (firstHop, secondHop) => firstHop.arrivalTime > secondHop.departureTime
+      }
     }
   }
+
 }
