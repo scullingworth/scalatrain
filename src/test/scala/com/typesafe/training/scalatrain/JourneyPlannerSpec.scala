@@ -1,6 +1,5 @@
 package com.typesafe.training.scalatrain
 
-import com.typesafe.training.scalatrain.JourneyPlanner
 import org.scalatest.{ Matchers, WordSpec }
 import scala.collection.immutable.Seq
 
@@ -19,11 +18,12 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
   val train3 = Train(RegionalExpress(3), Seq(Time(6, 0) -> vancouver, Time(9, 0) -> seattle, Time(10, 0) -> portland))
   val train4 = Train(RegionalExpress(4), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> seattle, Time(10, 0) -> portland, Time(12, 0) -> eugene))
   val train5 = Train(RegionalExpress(5), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> eugene))
-  
-  val train6 = Train(InterCityExpress(1), Seq(Time(8, 0) -> vancouver, Time(9, 0) -> seattle))
-  val train7 = Train(InterCityExpress(1), Seq(Time(8, 0) -> seattle, Time(9, 0) -> portland))
-  val train8 = Train(InterCityExpress(1), Seq(Time(9, 0) -> seattle, Time(10, 0) -> portland))
-  
+
+  val train6 = Train(InterCityExpress(6), Seq(Time(8, 0) -> vancouver, Time(9, 0) -> seattle))
+  val train7 = Train(InterCityExpress(7), Seq(Time(8, 0) -> seattle, Time(9, 0) -> portland))
+  val train8 = Train(InterCityExpress(8), Seq(Time(9, 0) -> seattle, Time(10, 0) -> portland))
+  val train9 = Train(InterCityExpress(9), Seq(Time(9, 0) -> seattle, Time(10, 0) -> vancouver))
+  val train10 = Train(InterCityExpress(10), Seq(Time(10, 0) -> vancouver, Time(12, 0) -> portland))
 
   "Creating JourneyPlanner" should {
     "verify that stations is correctly initialized" in {
@@ -93,46 +93,46 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
       jp.departingStationToHopsMap.get(vancouver).get should contain(Hop(vancouver, seattle, train4))
     }
   }
-  
-  
+
   "JourneyPlanner.pathsBetweenTwoStations" should {
     "return a single hop for a simple schedule" in {
       val jp = new JourneyPlanner(Set(train1))
       jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(1)
       jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.size should equal(1)
-      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.from should equal (vancouver)
-      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.to should equal (portland)
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.from should equal(vancouver)
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.to should equal(portland)
     }
   }
-  
+
   "JourneyPlanner.pathsBetweenTwoStations" should {
     "return a two hops for a two simple schedules" in {
       val jp = new JourneyPlanner(Set(train1, train3, train5))
-      
-      //println("result: " + jp.pathsBetweenTwoStations(vancouver, portland, Time(8)))
-      
       jp.pathsBetweenTwoStations(vancouver, portland, Time(6)).size should equal(2)
-//      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.size should equal(1)
-//      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.from should equal (vancouver)
-//      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).head.head.to should equal (portland)
     }
   }
-  
+
   "JourneyPlanner.pathsBetweenTwoStations" should {
     "return nothing if departure time is too late" in {
       val jp = new JourneyPlanner(Set(train1))
       jp.pathsBetweenTwoStations(vancouver, portland, Time(9)).size should equal(0)
     }
-    
+
     "return nothing if connection is impossible" in {
       val jp = new JourneyPlanner(Set(train6, train7))
       jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(0)
     }
-    
-     "return one path if connection is possible" in {
+
+    "return one path if connection is possible" in {
       val jp = new JourneyPlanner(Set(train6, train7, train8))
       jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(1)
     }
+
+    "return 2 paths, ignoring cycle" in {
+      val jp = new JourneyPlanner(Set(train6, train8, train9, train10))
+
+      println("routes: " + jp.pathsBetweenTwoStations(vancouver, portland, Time(8)))
+
+      jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(2)
+    }
   }
-  
 }
