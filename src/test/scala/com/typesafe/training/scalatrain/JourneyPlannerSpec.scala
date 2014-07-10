@@ -129,10 +129,30 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
 
     "return 2 paths, ignoring cycle" in {
       val jp = new JourneyPlanner(Set(train6, train8, train9, train10))
-
-      println("routes: " + jp.pathsBetweenTwoStations(vancouver, portland, Time(8)))
-
       jp.pathsBetweenTwoStations(vancouver, portland, Time(8)).size should equal(2)
+    }
+  }
+
+  "JourneyPlanner.sortByTotalTime" should {
+    "sum of duration of each hop" in {
+      val jp = new JourneyPlanner(Set(train4))
+      JourneyPlanner.totalTime(jp.pathsBetweenTwoStations(vancouver, eugene, Time(6)).head) should equal(6 * 60)
+    }
+
+    "sort paths by duration in ascending order" in {
+      val path1 = Seq(Hop(vancouver, portland, train1)) // 3 hours
+      val path2 = Seq(Hop(vancouver, portland, train3)) // 4 hours
+      val path3 = Seq(Hop(vancouver, eugene, train4)) // 6 hours
+      val path4 = Seq(Hop(vancouver, seattle, train6)) // 1 hour
+      JourneyPlanner.sortByTotalTime(Set(path1, path2, path3, path4)) should equal(Seq(path4, path1, path2, path3))
+    }
+
+    "sort paths by cost in ascending order" in {
+      val path1 = Seq(Hop(vancouver, portland, train1, 300))
+      val path2 = Seq(Hop(vancouver, portland, train3, 150))
+      val path3 = Seq(Hop(vancouver, seattle, train4, 200), Hop(seattle, portland, train4, 200))
+      val path4 = Seq(Hop(vancouver, seattle, train6, 250))
+      JourneyPlanner.sortByTotalCost(Set(path1, path2, path3, path4)) should equal(Seq(path2, path4, path1, path3))
     }
   }
 }

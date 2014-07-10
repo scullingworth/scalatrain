@@ -4,6 +4,8 @@ package com.typesafe.training.scalatrain
  * Created by stevec on 2014-07-07.
  */
 class JourneyPlanner(trains: Set[Train]) {
+  import JourneyPlanner.Path
+
   val stations: Set[Station] = trains.flatMap(x => x.stations)
 
   val departingStationToHopsMap: Map[Station, Set[Hop]] = {
@@ -25,15 +27,15 @@ class JourneyPlanner(trains: Set[Train]) {
 
   def isShortTrip(from: Station, to: Station): Boolean = {
     trains.exists(train => train.stations.dropWhile(s => s != from) match {
-      case `from` +: `to` +: _ => true
+      case `from` +: `to` +: _      => true
       case `from` +: _ +: `to` +: _ => true
-      case _ => false
+      case _                        => false
     })
   }
 
-  def pathsBetweenTwoStations(from: Station, to: Station, departureTime: Time): Set[Seq[Hop]] = {
+  def pathsBetweenTwoStations(from: Station, to: Station, departureTime: Time): Set[Path] = {
 
-    def containsImpossibleConnection(hops: Seq[Hop]): Boolean = {
+    def containsImpossibleConnection(hops: Path): Boolean = {
       if (hops.isEmpty) false
       else {
         val hopPairs = hops zip hops.tail
@@ -43,8 +45,8 @@ class JourneyPlanner(trains: Set[Train]) {
       }
     }
 
-    def pathsBetweenTwoStationsWithoutCycles(from: Station, to: Station, departureTime: Time, visitedStations: Set[Station]): Set[Seq[Hop]] = {
-      val paths: Set[Seq[Hop]] = {
+    def pathsBetweenTwoStationsWithoutCycles(from: Station, to: Station, departureTime: Time, visitedStations: Set[Station]): Set[Path] = {
+      val paths: Set[Path] = {
         if (from == to) Set(Seq())
         else {
           for {
@@ -56,7 +58,30 @@ class JourneyPlanner(trains: Set[Train]) {
       }
       paths filter (path => !containsImpossibleConnection(path))
     }
-    
+
     pathsBetweenTwoStationsWithoutCycles(from, to, departureTime, Set())
+  }
+
+}
+
+object JourneyPlanner {
+  type Path = Seq[Hop]
+
+  def totalTime(path: Path): Int = {
+    path.foldLeft(0)((acc: Int, hop: Hop) => acc + hop.duration)
+  }
+
+  def totalCost(path: Path): Int = {
+    path.foldLeft(0)((acc: Int, hop: Hop) => acc + hop.cost)
+  }
+
+  def sortBy(paths: Set[Path], f: (Path) => Int): Seq[Path] = paths.toList.sortWith((path1: Path, path2: Path) => f(path2) - f(path1) > 0)
+
+  def sortByTotalTime(paths: Set[Path]): Seq[Path] = {
+    sortBy(paths, totalTime)
+  }
+
+  def sortByTotalCost(paths: Set[Path]): Seq[Path] = {
+    sortBy(paths, totalCost)
   }
 }
