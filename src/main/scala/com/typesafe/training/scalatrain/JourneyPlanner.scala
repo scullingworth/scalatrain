@@ -35,31 +35,21 @@ class JourneyPlanner(trains: Set[Train]) {
 
   def pathsBetweenTwoStations(from: Station, to: Station, departureTime: Time): Set[Path] = {
 
-    def containsImpossibleConnection(hops: Path): Boolean = {
-      if (hops.isEmpty) false
-      else {
-        val hopPairs = hops zip hops.tail
-        hopPairs exists {
-          case (firstHop, secondHop) => firstHop.arrivalTime > secondHop.departureTime
-        }
-      }
-    }
-
-    def pathsBetweenTwoStationsWithoutCycles(from: Station, to: Station, departureTime: Time, visitedStations: Set[Station]): Set[Path] = {
+    def pathsBetweenTwoStationsWithoutCycles(from: Station, departureTime: Time, visitedStations: Set[Station]): Set[Path] = {
       val paths: Set[Path] = {
         if (from == to) Set(Seq())
         else {
           for {
             currentHop <- departingStationToHopsMap.getOrElse(from, Set()) if !visitedStations.contains(currentHop.from)
-            path <- pathsBetweenTwoStationsWithoutCycles(currentHop.to, to, departureTime, visitedStations + currentHop.from)
+            path <- pathsBetweenTwoStationsWithoutCycles(currentHop.to, currentHop.arrivalTime, visitedStations + currentHop.from)
             if currentHop.departureTime >= departureTime
           } yield currentHop +: path
         }
       }
-      paths filter (path => !containsImpossibleConnection(path))
+      paths
     }
 
-    pathsBetweenTwoStationsWithoutCycles(from, to, departureTime, Set())
+    pathsBetweenTwoStationsWithoutCycles(from, departureTime, Set())
   }
 
 }

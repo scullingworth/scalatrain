@@ -1,6 +1,6 @@
 package com.typesafe.training.scalatrain
 
-import com.typesafe.training.scalatrain.WeekDay.WeekDay
+import com.typesafe.training.scalatrain.WeekDays.WeekDay
 
 import scala.collection.immutable.Seq
 
@@ -10,7 +10,7 @@ import scala.collection.immutable.Seq
 case class Train(
     info: TrainInfo,
     schedule: Seq[(Time, Station)],
-    daysOperating: Set[WeekDay] = WeekDay.allDaysOfWeek) {
+    daysOperating: Set[WeekDay] = WeekDays.values) {
   require(schedule.length >= 2)
 
   val stations: Seq[Station] = schedule.map(x => x._2)
@@ -51,9 +51,7 @@ case class Hop(from: Station, to: Station, train: Train, cost: Int = 0) {
   override def toString: String = s"from: $from; to: $to; train#: ${train.info.number}"
 }
 
-object WeekDay extends Enumeration {
+object WeekDays extends Enumeration {
   type WeekDay = Value
   val Mon, Tues, Wed, Thurs, Fri, Sat, Sun = Value
-
-  val allDaysOfWeek = Set(Mon, Tues, Wed, Thurs, Fri, Sat, Sun)
 }
