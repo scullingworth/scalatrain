@@ -2,6 +2,7 @@ package com.typesafe.training.scalatrain
 
 import org.scalatest.{ Matchers, WordSpec }
 import scala.collection.immutable.Seq
+import com.github.nscala_time.time.Imports._
 
 /**
  * Created by stevec on 2014-07-07.
@@ -14,8 +15,8 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
   val eugene = Station("Eugene")
 
   val train1 = Train(InterCityExpress(1), Seq(Time(8, 0) -> vancouver, Time(11, 0) -> portland))
-  val train2 = Train(RegionalExpress(2), Seq(Time(6, 0) -> portland, Time(10, 0) -> seattle))
-  val train3 = Train(RegionalExpress(3), Seq(Time(6, 0) -> vancouver, Time(9, 0) -> seattle, Time(10, 0) -> portland))
+  val train2 = Train(RegionalExpress(2), Seq(Time(6, 0) -> portland, Time(10, 0) -> seattle), Set(WeekDays.Mon))
+  val train3 = Train(RegionalExpress(3), Seq(Time(6, 0) -> vancouver, Time(9, 0) -> seattle, Time(10, 0) -> portland), Set(WeekDays.Mon), Set(DateTime.now.withDate(2014, 7, 7)))
   val train4 = Train(RegionalExpress(4), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> seattle, Time(10, 0) -> portland, Time(12, 0) -> eugene))
   val train5 = Train(RegionalExpress(5), Seq(Time(6, 0) -> vancouver, Time(8, 0) -> eugene))
 
@@ -153,6 +154,34 @@ class JourneyPlannerSpec extends WordSpec with Matchers {
       val path3 = Seq(Hop(vancouver, seattle, train4, 200), Hop(seattle, portland, train4, 200))
       val path4 = Seq(Hop(vancouver, seattle, train6, 250))
       JourneyPlanner.sortByTotalCost(Set(path1, path2, path3, path4)) should equal(Seq(path2, path4, path1, path3))
+    }
+  }
+  
+  "JourneyPlanner.trainsRunningOn" should {
+    
+    "all trains run on Monday July 14th 2014" in {
+      val jp = new JourneyPlanner(Set(train1, train2, train3))
+      val trainsRunning = jp.trainsRunningOn(DateTime.now.withDate(2014, 7, 14))
+      trainsRunning should contain (train1)
+      trainsRunning should contain (train2)
+      trainsRunning should contain (train3)
+      trainsRunning.size should be (3)
+    }
+    
+    
+    "2 trains run on Monday July 7th 2014" in {
+      val jp = new JourneyPlanner(Set(train1, train2, train3))
+      val trainsRunning = jp.trainsRunningOn(DateTime.now.withDate(2014, 7, 7))
+      trainsRunning should contain (train1)
+      trainsRunning should contain (train2)
+      trainsRunning.size should be (2)
+    }
+    
+    "1 train runs on Tuesdays" in {
+      val jp = new JourneyPlanner(Set(train1, train2, train3))
+      val trainsRunning = jp.trainsRunningOn(DateTime.now.withDate(2014, 7, 8))
+      trainsRunning should contain (train1)
+      trainsRunning.size should be (1)
     }
   }
 }

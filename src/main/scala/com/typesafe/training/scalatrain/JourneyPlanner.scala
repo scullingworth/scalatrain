@@ -1,5 +1,6 @@
 package com.typesafe.training.scalatrain
 
+import com.github.nscala_time.time.Imports._
 /**
  * Created by stevec on 2014-07-07.
  */
@@ -51,6 +52,8 @@ class JourneyPlanner(trains: Set[Train]) {
 
     pathsBetweenTwoStationsWithoutCycles(from, departureTime, Set())
   }
+
+  def trainsRunningOn(date: DateTime): Set[Train] = trains filter (train => train.isRunningOn(date))
 
 }
 

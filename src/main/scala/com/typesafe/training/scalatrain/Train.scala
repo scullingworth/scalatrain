@@ -1,8 +1,7 @@
 package com.typesafe.training.scalatrain
 
-import com.typesafe.training.scalatrain.WeekDays.WeekDay
-
 import scala.collection.immutable.Seq
+import com.github.nscala_time.time.Imports._
 
 /**
  * Created by stevec on 2014-07-07.
@@ -10,7 +9,8 @@ import scala.collection.immutable.Seq
 case class Train(
     info: TrainInfo,
     schedule: Seq[(Time, Station)],
-    daysOperating: Set[WeekDay] = WeekDays.values) {
+    daysOperating: Set[WeekDays.Value] = WeekDays.values,
+    exceptionDates: Set[DateTime] = Set()) {
   require(schedule.length >= 2)
 
   val stations: Seq[Station] = schedule.map(x => x._2)
@@ -29,6 +29,24 @@ case class Train(
   }
 
   val departureTimes: Seq[(Station, Time)] = schedule map (stop => (stop._2, stop._1))
+
+  def isRunningOn(date: DateTime): Boolean = !isAnExceptionDate(date) && runsOnOperatingDays(date)
+
+  private def isAnExceptionDate(date: DateTime): Boolean = {
+    exceptionDates.exists(exceptionDate => {
+      val (exceptionYear, exceptionMonth, exceptionDay) = (exceptionDate.getYear, exceptionDate.monthOfYear, exceptionDate.dayOfMonth)
+      val (year, month, day) = (date.getYear(), date.monthOfYear(), date.dayOfMonth())
+      exceptionYear == year && exceptionMonth == month && exceptionDay == day
+    })
+  }
+
+  private def runsOnOperatingDays(date: DateTime): Boolean = {
+    println("date: " + date)
+    
+    daysOperating exists (day => {
+      println(s"day.id: ${day.id}; date.dayOfWeek().get(): ${date.dayOfWeek().get()}")
+      day.id == date.dayOfWeek().get()})
+  }
 
 }
 
@@ -53,5 +71,5 @@ case class Hop(from: Station, to: Station, train: Train, cost: Int = 0) {
 
 object WeekDays extends Enumeration {
   type WeekDay = Value
-  val Mon, Tues, Wed, Thurs, Fri, Sat, Sun = Value
+  val Sun, Mon, Tues, Wed, Thurs, Fri, Sat = Value
 }
